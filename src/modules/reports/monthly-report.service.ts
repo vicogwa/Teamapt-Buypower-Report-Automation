@@ -11,9 +11,9 @@ export class MonthlyReportService {
     type: 'wallet' | 'power',
   ) {
     if (type === 'wallet') {
-      return this.reportService.generateReport('monthly', userId, email);
+      return this.reportService.generateReport('monthly', 'WalletService', userId, email);
     } else if (type === 'power') {
-      return this.reportService.generatePowerReport('monthly', userId, email);
+      return this.reportService.generateReport('monthly', 'BuyPower', userId, email);
     }
   }
 }

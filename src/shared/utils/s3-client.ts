@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import { create } from 'archiver';
 
 export class S3Client {
-  private readonly s3BucketName = 'report-export-glory';
-  s3 = new AWS.S3({
-    region: 'eu-north-1',
-  });
+    private readonly s3BucketName = 'team-daily-report';
+    s3 = new AWS.S3({
+        region:  process.env.AWS_REGION,
+        accessKeyId:  process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey:  process.env.AWS_SECRET_ACCESS_KEY,
+      });
 
   async zipAndUploadFolderToS3(
     queryDate: string,

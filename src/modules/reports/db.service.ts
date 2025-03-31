@@ -3,13 +3,15 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class DbService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) {}
 
-  async query<T = any>(sql: string, params: any[]): Promise<T[]> {
+  // Executes a query and returns the result
+  async executeQuery(query: string, params: any[]): Promise<any[]> {
     try {
-      return await this.dataSource.query(sql, params);
+      const [rows] = await this.dataSource.query(query, params);
+      return rows;
     } catch (error) {
-      console.error('Database query error:', error);
+      console.error('Error executing query:', error);
       throw new Error('Database query failed');
     }
   }
