@@ -21,7 +21,6 @@ export class ReportService {
   ): Promise<boolean> {
     const results = await this.fetchData(this.getQuery(schedule), [userId]);
     const queryDate = this.getCurrentDateForSchedule(schedule);
-    console.log('RESULTS', results);
     const filePath = this.prepareCsvFile(schedule, results);
 
     await this.s3Service.zipAndUploadFolderToS3(
@@ -95,10 +94,11 @@ export class ReportService {
   private getPowerQuery(schedule: string): string {
     const reportQuery = `
     SELECT time_stamp, userid, platform, service, customer_name, customer_info, receiver, util_receipt, amount, amount_paid, amount, token, unit, phone, status
-    FROM power_transactionitems 
-    WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
-  `;
+    FROM power_transactionitems
+    WHERE user = '129320' LIMIT 2;
+    `;
     return reportQuery;
+    // WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
   }
 
   private getCurrentDateForSchedule(schedule: string): string {
@@ -119,7 +119,15 @@ export class ReportService {
     if (!fs.existsSync(tempFolderPath))
       fs.mkdirSync(tempFolderPath, { recursive: true });
 
-    const fileName = `${schedule}-report-${Date.now()}.csv`;
+    // Clean up the folder by deleting all existing files
+    const existingFiles = fs.readdirSync(tempFolderPath);
+    existingFiles.forEach((file) => {
+      fs.unlinkSync(path.join(tempFolderPath, file));
+    });
+
+    // Use a consistent file name based on the schedule and current date
+    const queryDate = this.getCurrentDateForSchedule(schedule);
+    const fileName = `${schedule}-report-${queryDate}.csv`;
     const filePath = path.join(tempFolderPath, fileName);
 
     const csvHeaders = [
@@ -127,7 +135,7 @@ export class ReportService {
       { id: 'userid', title: 'Userid' },
       { id: 'platform', title: 'Platform' },
       { id: 'amount', title: 'Amount' },
-      { id: 'amount_paid', title: 'Amount Paid'},
+      { id: 'amount_paid', title: 'Amount Paid' },
       { id: 'token', title: 'Token' },
       { id: 'unit', title: 'Unit' },
       { id: 'phone', title: 'Phone' },
@@ -143,4 +151,3 @@ export class ReportService {
     return filePath;
   }
 }
-

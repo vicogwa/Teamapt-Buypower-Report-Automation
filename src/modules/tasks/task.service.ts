@@ -10,17 +10,12 @@ export class TaskService {
     private readonly monthlyReportService: MonthlyReportService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron('59 23 * * *')
   async handleDailyReports() {
     console.log('Running daily reports...');
     await this.dailyReportService.generateDailyReport(
       129320,
       'victoriafrancis885@gmail.com',
-      'wallet',
-    );
-    await this.dailyReportService.generateDailyReport(
-      129320,
-      'andrewglory32@gmail.com',
       'power',
     );
   }
@@ -28,11 +23,6 @@ export class TaskService {
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async handleMonthlyReports() {
     console.log('Running monthly reports...');
-    await this.monthlyReportService.generateMonthlyReport(
-      27688,
-      'victoriafrancis885@gmail.com',
-      'wallet',
-    );
     await this.monthlyReportService.generateMonthlyReport(
       27688,
       'victoriafrancis885@gmail.com',
