@@ -86,7 +86,7 @@ export class ReportService {
     const reportQuery = `
     SELECT time_stamp, userid, platform, service, customer_name, customer_info, receiver, util_receipt, amount, amount_paid, amount, token, unit, phone, status
     FROM power_transactionitems 
-    WHERE user = '129320' LIMIT 2;
+    WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
   `;
     return reportQuery;
   }
@@ -94,11 +94,10 @@ export class ReportService {
   private getPowerQuery(schedule: string): string {
     const reportQuery = `
     SELECT time_stamp, userid, platform, service, customer_name, customer_info, receiver, util_receipt, amount, amount_paid, amount, token, unit, phone, status
-    FROM power_transactionitems
-    WHERE user = '129320' LIMIT 2;
-    `;
+    FROM power_transactionitems 
+    WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
+  `;
     return reportQuery;
-    // WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
   }
 
   private getCurrentDateForSchedule(schedule: string): string {
