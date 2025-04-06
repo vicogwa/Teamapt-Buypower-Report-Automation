@@ -13,6 +13,6 @@ export class CsvService {
     });
 
     await csvWriter.writeRecords(transactions);
-    console.log('CSV file created successfully');
+    console.log('CSV file created successfully', header);
   }
 }

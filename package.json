@@ -28,6 +28,7 @@
     "@nestjs/schedule": "^5.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "@types/uuid": "^9.0.8",
+    "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
     "aws-sdk": "^2.1569.0",
     "csv-writer": "^1.6.0",

@@ -8,22 +8,25 @@ import { create } from 'archiver';
 export class S3Client {
   private readonly s3BucketName = 'report-export-glory';
   s3 = new AWS.S3({
-    region: 'eu-north-1',
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    
   });
-
+  
   async zipAndUploadFolderToS3(
     queryDate: string,
     folderPath: string,
     subject: string,
   ): Promise<void> {
-    console.log('subject in zip', subject);
     const zipFilePath = `/tmp/${this.getFileName(subject, queryDate)}.zip`;
 
     await this.zipFolder(folderPath, zipFilePath);
 
     const fileContent = fs.readFileSync(zipFilePath);
 
-    console.log('FILE CONTENT', fileContent);
+    console.log('FILE CONTENT (String):', fileContent.toString('utf-8').slice(0, 100)); 
+    console.log('FILE CONTENT (Base64):', fileContent.toString('base64').slice(0, 100)); // Logs first 100 characters in Base64
     await this.uploadToS3(
       `transactions_${queryDate}`,
       `transactions_${queryDate}/transactions.zip`,
@@ -34,26 +37,56 @@ export class S3Client {
     fs.unlinkSync(zipFilePath);
   }
 
+  // async zipFolder(folderPath: string, outputFilePath: string): Promise<void> {
+  //   const output = fs.createWriteStream(outputFilePath);
+  //   const archive = create('zip', { zlib: { level: 9 } });
+  //   return new Promise((resolve, reject) => {
+  //     output.on('close', () => {
+  //       console.log(`Zipped folder: ${archive.pointer()} total bytes`);
+  //       resolve();
+  //     });
+
+  //     output.on('error', reject);
+  //     archive.on('error', reject);
+
+  //     archive.pipe(output);
+  //     archive.directory(folderPath, false);
+
+  //     archive.finalize().catch(reject);
+  //   });
+  // }
+
   async zipFolder(folderPath: string, outputFilePath: string): Promise<void> {
     const output = fs.createWriteStream(outputFilePath);
     const archive = create('zip', { zlib: { level: 9 } });
-    console.log('ARCHIVE', archive);
+  
+    const files = fs.readdirSync(folderPath);
+    console.log('Files being added to ZIP:', files);  // Logging files to check for duplicates
+  
     return new Promise((resolve, reject) => {
       output.on('close', () => {
         console.log(`Zipped folder: ${archive.pointer()} total bytes`);
+  
+        // Check contents of the zip file for duplicates
+        const AdmZip = require('adm-zip');
+        const zip = new AdmZip(outputFilePath);
+        const zipEntries = zip.getEntries();
+  
+        console.log('Contents of the ZIP file:');
+        zipEntries.forEach(entry => console.log(entry.entryName));
+  
         resolve();
       });
-
+  
       output.on('error', reject);
       archive.on('error', reject);
-
+  
       archive.pipe(output);
-      archive.directory(folderPath, false);
-
+      archive.directory(folderPath, false);  // Ensure this is adding the right files
       archive.finalize().catch(reject);
     });
   }
-
+  
   async uploadToS3(
     folderPath: string,
     fileName: string,
@@ -65,6 +98,9 @@ export class S3Client {
     const key = `${this.capitalizeFirstLetter(subject)}-Export/${fileName}`;
 
     console.log('Uploading file with key:', key);
+    console.log(process.env.AWS_REGION);
+    console.log(process.env.AWS_ACCESS_KEY_ID);
+    console.log(process.env.AWS_SECRET_ACCESS_KEY);
 
     const params = {
       Bucket: this.s3BucketName,

@@ -87,7 +87,7 @@ export class ReportService {
     const reportQuery = `
     SELECT time_stamp, userid, platform, service, customer_name, customer_info, receiver, util_receipt, amount, amount_paid, amount, token, unit, phone, status
     FROM power_transactionitems 
-    WHERE user = '129320' AND datecreated = '${this.getCurrentDateForSchedule(schedule)}';
+    WHERE user = '129320' LIMIT 2;
   `;
     return reportQuery;
   }
@@ -124,16 +124,23 @@ export class ReportService {
 
     const csvHeaders = [
       { id: 'time_stamp', title: 'Timestamp' },
-      { id: 'category', title: 'Category' },
-      { id: 'details', title: 'Details' },
+      { id: 'userid', title: 'Userid' },
+      { id: 'platform', title: 'Platform' },
       { id: 'amount', title: 'Amount' },
-      { id: 'balance_snapshot', title: 'Balance Snapshot' },
-      { id: 'recharge_type', title: 'Recharge Type' },
+      { id: 'amount_paid', title: 'Amount Paid'},
+      { id: 'token', title: 'Token' },
+      { id: 'unit', title: 'Unit' },
+      { id: 'phone', title: 'Phone' },
+      { id: 'util_receipt', title: 'Util Receipt' },
+      { id: 'customer_name', title: 'Customer Name' },
+      { id: 'customer_info', title: 'Customer Info' },
+      { id: 'receiver', title: 'Receiver' },
       { id: 'service', title: 'Service' },
-      { id: 'customer_reference', title: 'Customer Reference' },
+      { id: 'status', title: 'Status' },
     ];
 
     this.csvService.generateCSV(csvHeaders, data, filePath);
     return filePath;
   }
 }
+
