@@ -2,3 +2,8 @@ export * from './mysql-client';
 export * from './s3-client';
 export * from './csv.utils';
 export * from './email.utils';
+
+import dotenv from 'dotenv';
+
+dotenv.config();
+
